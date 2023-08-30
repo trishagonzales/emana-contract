@@ -1,0 +1,18 @@
+node_modules
+coverage
+coverage.json
+typechain
+typechain-types
+drafts
+
+# Hardhat files
+cache
+artifacts
+
+# Hardhat-deploy
+deployments
+export
+
+# Secrets
+.env*
+
