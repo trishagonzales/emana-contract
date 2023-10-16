@@ -2,13 +2,14 @@
 pragma solidity 0.8.19;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "hardhat/console.sol";
 
 abstract contract Ownable is Initializable {
-    address private _owner;
-    mapping(address => bool) private _isGovernor;
+    address internal _owner;
+    mapping(address => bool) internal _isGovernor;
 
-    error Ownable_UnauthorizedAccount(address account);
-    error Ownable_InvalidAddress(address account);
+    error UnauthorizedAccount(address account);
+    error InvalidAddress(address account);
 
     event OwnershipTransferred(
         address indexed previousOwner,
@@ -29,43 +30,39 @@ abstract contract Ownable is Initializable {
         _;
     }
 
-    // Guards
+    function _revertIfNotOwner() internal view virtual {
+        if (msg.sender != _owner) revert UnauthorizedAccount(msg.sender);
+    }
 
-    function _revertIfNotOwner() internal view {
-        if (_owner != msg.sender) {
-            revert Ownable_UnauthorizedAccount(msg.sender);
+    function _revertIfNotGovernor() internal view virtual {
+        if (msg.sender != _owner && _isGovernor[msg.sender] == false) {
+            console.log("Sender in Ownable: %s", msg.sender);
+            console.log("isGovernor in Ownable: %s", _isGovernor[msg.sender]);
+            revert UnauthorizedAccount(msg.sender);
         }
     }
 
-    function _revertIfNotGovernor() internal view {
-        if (_owner != msg.sender || !_isGovernor[msg.sender]) {
-            revert Ownable_UnauthorizedAccount(msg.sender);
-        }
-    }
-
-    // Public functions
-
-    function grantGovernance(address governor) external onlyOwner {
+    function grantGovernance(address governor) public virtual onlyOwner {
         _isGovernor[governor] = true;
     }
 
-    function revokeGovernance(address governor) external onlyOwner {
+    function revokeGovernance(address governor) public virtual onlyOwner {
         _isGovernor[governor] = false;
     }
 
-    function transferOwnership(address newOwner) external onlyOwner {
-        if (newOwner == address(0)) {
-            revert Ownable_InvalidAddress(address(0));
-        }
+    function transferOwnership(address newOwner) public virtual onlyOwner {
+        if (newOwner == address(0)) revert InvalidAddress(newOwner);
 
         address oldOwner = _owner;
         _owner = newOwner;
         emit OwnershipTransferred(oldOwner, newOwner);
     }
 
-    function owner() public view returns (address) {
+    function owner() public view virtual returns (address) {
         return _owner;
     }
 
-    uint256[49] private __gap;
+    function isGovernor(address addr) public view virtual returns (bool) {
+        return _isGovernor[addr];
+    }
 }

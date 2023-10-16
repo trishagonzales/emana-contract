@@ -14,8 +14,6 @@ abstract contract Pausable is Initializable, Ownable {
     error PausedStateRequired();
 
     function __Pausable_init() internal onlyInitializing {
-        __Ownable_init();
-
         _paused = false;
     }
 
@@ -29,19 +27,17 @@ abstract contract Pausable is Initializable, Ownable {
         _;
     }
 
-    function pause() public onlyOwner whenNotPaused {
+    function pause() public virtual onlyOwner whenNotPaused {
         _paused = true;
         emit Paused(msg.sender);
     }
 
-    function unpause() public onlyOwner whenPaused {
+    function unpause() public virtual onlyOwner whenPaused {
         _paused = false;
         emit Unpaused(msg.sender);
     }
 
-    function isPaused() public view returns (bool) {
+    function isPaused() public view virtual returns (bool) {
         return _paused;
     }
-
-    uint256[4] private __gap;
 }

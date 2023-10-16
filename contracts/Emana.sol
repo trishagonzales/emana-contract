@@ -3,24 +3,17 @@ pragma solidity 0.8.19;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "./Pausable.sol";
+import "./Interfaces.sol";
+import "hardhat/console.sol";
 
-contract Emana is Initializable, Pausable {
-    mapping(address => uint256) private _balances;
-    mapping(address => mapping(address => uint256)) private _allowances;
+contract Emana is IEmana, Initializable, Pausable {
+    mapping(address => uint) internal _balances;
+    mapping(address => mapping(address => uint)) internal _allowances;
 
-    uint256 public totalSupply;
-    string public constant name = "Emana";
-    string public constant symbol = "EMN";
+    uint public totalSupply;
+    string public constant name = "Emana Token";
+    string public constant symbol = "EMANA";
     uint8 public constant decimals = 18;
-
-    event Transfer(address indexed from, address indexed to, uint256 value);
-    event Approval(
-        address indexed owner,
-        address indexed spender,
-        uint256 value
-    );
-
-    error Emana_InvalidAddress();
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -28,15 +21,26 @@ contract Emana is Initializable, Pausable {
     }
 
     function initialize() public initializer {
+        console.log("Owner in Emana: %s", owner());
+        __Ownable_init();
+        console.log("Owner in Emana after set: %s", owner());
         __Pausable_init();
-        _mint(msg.sender, 1000000000 * 10 ** decimals); // one billion
+        console.log("Owner in Emana after pausable: %s", owner());
+
+        _mint(owner(), 10000000000 * 10 ** decimals); // ten billion
     }
 
-    function balanceOf(address account) public view returns (uint256) {
+    function getOwner() public view returns (address) {
+        console.log("Owner in getOwner: %s", owner());
+        console.log("Balance in getOwner: %s", balanceOf(owner()));
+        return owner();
+    }
+
+    function balanceOf(address account) public view virtual returns (uint) {
         return _balances[account];
     }
 
-    function transfer(address to, uint256 amount) public returns (bool) {
+    function transfer(address to, uint amount) public virtual returns (bool) {
         address owner = msg.sender;
         _transfer(owner, to, amount);
         return true;
@@ -45,11 +49,14 @@ contract Emana is Initializable, Pausable {
     function allowance(
         address owner,
         address spender
-    ) public view returns (uint256) {
+    ) public view virtual returns (uint) {
         return _allowances[owner][spender];
     }
 
-    function approve(address spender, uint256 amount) public returns (bool) {
+    function approve(
+        address spender,
+        uint amount
+    ) public virtual returns (bool) {
         address owner = msg.sender;
         _approve(owner, spender, amount);
         return true;
@@ -58,8 +65,8 @@ contract Emana is Initializable, Pausable {
     function transferFrom(
         address from,
         address to,
-        uint256 amount
-    ) public returns (bool) {
+        uint amount
+    ) public virtual returns (bool) {
         address spender = msg.sender;
         _spendAllowance(from, spender, amount);
         _transfer(from, to, amount);
@@ -68,8 +75,8 @@ contract Emana is Initializable, Pausable {
 
     function increaseAllowance(
         address spender,
-        uint256 addedValue
-    ) public returns (bool) {
+        uint addedValue
+    ) public virtual returns (bool) {
         address owner = msg.sender;
         _approve(owner, spender, allowance(owner, spender) + addedValue);
         return true;
@@ -77,14 +84,19 @@ contract Emana is Initializable, Pausable {
 
     function decreaseAllowance(
         address spender,
-        uint256 subtractedValue
-    ) public returns (bool) {
+        uint subtractedValue
+    ) public virtual returns (bool) {
         address owner = msg.sender;
-        uint256 currentAllowance = allowance(owner, spender);
-        require(
-            currentAllowance >= subtractedValue,
-            "ERC20: decreased allowance below zero"
-        );
+        uint currentAllowance = allowance(owner, spender);
+
+        if (currentAllowance < subtractedValue) {
+            revert ERC20FailedDecreaseAllowance(
+                spender,
+                currentAllowance,
+                subtractedValue
+            );
+        }
+
         unchecked {
             _approve(owner, spender, currentAllowance - subtractedValue);
         }
@@ -92,53 +104,59 @@ contract Emana is Initializable, Pausable {
         return true;
     }
 
-    function mint(uint256 amount) external onlyOwner {
+    function mint(uint amount) public virtual onlyOwner returns (bool) {
         _mint(owner(), amount);
+        return true;
     }
 
-    function burn(uint256 amount) external onlyOwner {
+    function burn(uint amount) public virtual onlyOwner returns (bool) {
         _burn(owner(), amount);
+        return true;
     }
 
     function governanceTransferFrom(
         address from,
         address to,
-        uint256 amount
-    ) public onlyGovernors {
+        uint amount
+    ) public virtual onlyGovernors returns (bool) {
         _transfer(from, to, amount);
+        return true;
     }
 
     function governanceTransfer(
         address to,
-        uint256 amount
-    ) public onlyGovernors {
+        uint amount
+    ) public virtual onlyGovernors returns (bool) {
         _transfer(owner(), to, amount);
+        return true;
     }
 
     function _transfer(
         address from,
         address to,
-        uint256 amount
-    ) internal whenNotPaused {
-        if (from == address(0)) revert Emana_InvalidAddress();
-        if (to == address(0)) revert Emana_InvalidAddress();
+        uint amount
+    ) internal virtual whenNotPaused {
+        if (from == address(0)) revert ERC20InvalidSender(from);
+        if (to == address(0)) revert ERC20InvalidReceiver(to);
 
-        uint256 fromBalance = _balances[from];
-        require(
-            fromBalance >= amount,
-            "ERC20: transfer amount exceeds balance"
-        );
+        uint fromBalance = _balances[from];
+        if (fromBalance < amount) {
+            revert ERC20InsufficientBalance(from, fromBalance, amount);
+        }
+
         unchecked {
             _balances[from] = fromBalance - amount;
-
             _balances[to] += amount;
         }
 
         emit Transfer(from, to, amount);
     }
 
-    function _mint(address account, uint256 amount) internal whenNotPaused {
-        if (account == address(0)) revert Emana_InvalidAddress();
+    function _mint(
+        address account,
+        uint amount
+    ) internal virtual whenNotPaused {
+        if (account == address(0)) revert ERC20InvalidReceiver(account);
 
         totalSupply += amount;
         unchecked {
@@ -148,26 +166,35 @@ contract Emana is Initializable, Pausable {
         emit Transfer(address(0), account, amount);
     }
 
-    function _burn(address account, uint256 amount) internal whenNotPaused {
-        if (account == address(0)) revert Emana_InvalidAddress();
+    function _burn(
+        address account,
+        uint amount
+    ) internal virtual whenNotPaused {
+        if (account == address(0)) revert ERC20InvalidSender(account);
 
-        uint256 accountBalance = _balances[account];
-        require(accountBalance >= amount, "ERC20: burn amount exceeds balance");
+        uint accountBalance = _balances[account];
+        if (accountBalance < amount)
+            revert ERC20InsufficientBalanceForBurn(
+                account,
+                accountBalance,
+                amount
+            );
 
         unchecked {
             _balances[account] = accountBalance - amount;
             totalSupply -= amount;
         }
+
         emit Transfer(account, address(0), amount);
     }
 
     function _approve(
         address owner,
         address spender,
-        uint256 amount
-    ) internal whenNotPaused {
-        if (owner == address(0)) revert Emana_InvalidAddress();
-        if (spender == address(0)) revert Emana_InvalidAddress();
+        uint amount
+    ) internal virtual whenNotPaused {
+        if (owner == address(0)) revert ERC20InvalidApprover(owner);
+        if (spender == address(0)) revert ERC20InvalidSpender(spender);
 
         _allowances[owner][spender] = amount;
         emit Approval(owner, spender, amount);
@@ -176,19 +203,23 @@ contract Emana is Initializable, Pausable {
     function _spendAllowance(
         address owner,
         address spender,
-        uint256 amount
-    ) internal whenNotPaused {
-        uint256 currentAllowance = allowance(owner, spender);
-        if (currentAllowance != type(uint256).max) {
-            require(
-                currentAllowance >= amount,
-                "ERC20: insufficient allowance"
-            );
+        uint amount
+    ) internal virtual whenNotPaused {
+        uint currentAllowance = allowance(owner, spender);
+        if (currentAllowance != type(uint).max) {
+            if (currentAllowance < amount) {
+                revert ERC20InsufficientAllowance(
+                    spender,
+                    currentAllowance,
+                    amount
+                );
+            }
+
             unchecked {
                 _approve(owner, spender, currentAllowance - amount);
             }
         }
     }
 
-    uint256[20] private __gap;
+    uint[40] private __gap;
 }

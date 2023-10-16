@@ -1,0 +1,577 @@
+{
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0xD20C27fFE37220bD07cD631089053Ed7a8298DF4",
+    "txHash": "0x7c093adc7ca9ac560cfe2dbba613fb806bddcd06af86d5ae0ac18029b8abec0b"
+  },
+  "proxies": [
+    {
+      "address": "0x6c1A1De3b99bDffA891Db3720f160B7A51338f7F",
+      "txHash": "0x33524b8e9acf9aa377fbaafd3b41a4f0628475192d670f997337a20aefbafa1a",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xa898862a90261287d1747d84221b733fCD1dc242",
+      "txHash": "0xc6eade8cb9bd47b79366654642c2eec9aacbf20a68f98b46a75254e365dd236e",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xd3dFABDE9Eb27BB3245274c1Af41c15e070568cf",
+      "txHash": "0xdfd5d6c2c057f0d6a2450517041a0c216b086baa794fe366177b46eca750e328",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x0388638D5B10BA20786E6A150B8643EcF0C63584",
+      "txHash": "0x34c379f25e90b34eab93cd573bbe635ade8efaf8b490bb206eb92c935c8d03a7",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xE11649e04789dbd0AA4EE651DA1cB00Db8c3f4BE",
+      "txHash": "0x7ff1ef1420b8c77bf048102a28c6844dd04293c0fe1e67a12f0c653c46e0c777",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xbD282d370143CA03Dec4f13c719c7EC5783e5d76",
+      "txHash": "0x96422a4186f419d60e99acdd71f2cc5b106dbfd88c17c9fdec2c7271fa99436a",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xF253638F6496298173d098C378F82f4FDc00ee13",
+      "txHash": "0xbf197fc1e7c852b155c5a161719e2fbb6e875ec795c035343ca8cde682abb693",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xa2fE6a1eB6B1231BbFcb6C29D4c01e32a0c85470",
+      "txHash": "0xbdf5e1bf2d6387334877acca52622780026bf878d6f49142f089906f9ffc8500",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x6fCF878648378C365D8aC4bCB3701Ad2A1917b5a",
+      "txHash": "0xac7927fb558ae3af68a2fd210cfaca26075547bd4996391ee028489f60f6da5e",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x161046eeB365d6Cba26C44b0aD107E71D8934958",
+      "txHash": "0xd5a5621bd80147520376529b28117005a7b87665cf6171ad928315a6e4ff2743",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x8e83867Cfd42AE85F0047acF45a085B4293aAC46",
+      "txHash": "0xc9ac3bb3aed55fd558f56859b4240f6cd7c848e8bad817c7338c79574f4c8d9a",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xBEc1615Ae1F02dbAae8cDF1662aF2A9F827F0689",
+      "txHash": "0xf96e422b786667d74d8844be06c060bf067a9cfc1e826892c7dbaa4f28da9563",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xfA64f99453f4605C3f23f9E0dE1E51F725D3D56C",
+      "txHash": "0xb981fea60b79cd4607b4d4488df9b2a77990fcdc41fd311d5cd2a42501051a6e",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x9B3cc746b5d91C789Fe9289C443D6a9e89a3bbc6",
+      "txHash": "0x1e5e9fe2a634ee84003ca64a9d1edffb72f5d3ab9cba5a2ecf9f39fa3fa3f32b",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xC138d8bD8d6FBAadD7A2F8aA398eb73cA98a9e4F",
+      "txHash": "0x1ea0b6cd513bbc4011c689fbd7a7e7db510798ba3b79b8253c070c45de448da8",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "105dc56856ea8436c4fe27a13ceea534b09a5f31f42a5b98aef0b567e9039e9a": {
+      "address": "0x21A09edfB3569B92FfCda8a9CfCF2CcABB72CE32",
+      "txHash": "0x7e776a59ad66f62060f5795b3cee4b89f45b17b7a434831cb756aa0e286b6f6a",
+      "layout": {
+        "solcVersion": "0.8.19",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "_owner",
+            "offset": 2,
+            "slot": "0",
+            "type": "t_address",
+            "contract": "Ownable",
+            "src": "contracts/Ownable.sol:7"
+          },
+          {
+            "label": "_isGovernor",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "Ownable",
+            "src": "contracts/Ownable.sol:8"
+          },
+          {
+            "label": "_paused",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_bool",
+            "contract": "Pausable",
+            "src": "contracts/Pausable.sol:8"
+          },
+          {
+            "label": "_balances",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "Emana",
+            "src": "contracts/Emana.sol:8"
+          },
+          {
+            "label": "_allowances",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+            "contract": "Emana",
+            "src": "contracts/Emana.sol:9"
+          },
+          {
+            "label": "totalSupply",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256",
+            "contract": "Emana",
+            "src": "contracts/Emana.sol:11"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_array(t_uint256)40_storage",
+            "contract": "Emana",
+            "src": "contracts/Emana.sol:239"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)40_storage": {
+            "label": "uint256[40]",
+            "numberOfBytes": "1280"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(address => mapping(address => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    },
+    "fecb5b50f8390cdf8299665f5607fef9e0d331770caf4cf18c2a4bf9856775c7": {
+      "address": "0x8A7f66fD049ADa6f54645Cd6cF6Efbac87bB8789",
+      "txHash": "0xfe47013252839c6cd47e350ce92df28f7bfcba46b0d1dc4000e57fa12357c6f2",
+      "layout": {
+        "solcVersion": "0.8.19",
+        "storage": [
+          {
+            "label": "_balances",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "BUSDMock",
+            "src": "contracts/BUSDMock.sol:7"
+          },
+          {
+            "label": "_allowances",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+            "contract": "BUSDMock",
+            "src": "contracts/BUSDMock.sol:9"
+          },
+          {
+            "label": "_totalSupply",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256",
+            "contract": "BUSDMock",
+            "src": "contracts/BUSDMock.sol:12"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(address => mapping(address => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        }
+      }
+    },
+    "8e3a8b538bbef55feac943a30d98d46edb9e9827f36d44ef1ebd5eff66883f6b": {
+      "address": "0x0619859C8D9d4Ae3acDF610b29fCF98db5996C57",
+      "txHash": "0x4d939d4cf7b25ec3c81992acae80933402adfaccd94389a71359c631a9cd2f2c",
+      "layout": {
+        "solcVersion": "0.8.19",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "_owner",
+            "offset": 2,
+            "slot": "0",
+            "type": "t_address",
+            "contract": "Ownable",
+            "src": "contracts/Ownable.sol:7"
+          },
+          {
+            "label": "_isGovernor",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "Ownable",
+            "src": "contracts/Ownable.sol:8"
+          },
+          {
+            "label": "_paused",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_bool",
+            "contract": "Pausable",
+            "src": "contracts/Pausable.sol:8"
+          },
+          {
+            "label": "_balances",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "Emana",
+            "src": "contracts/Emana.sol:9"
+          },
+          {
+            "label": "_allowances",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+            "contract": "Emana",
+            "src": "contracts/Emana.sol:10"
+          },
+          {
+            "label": "totalSupply",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256",
+            "contract": "Emana",
+            "src": "contracts/Emana.sol:12"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_array(t_uint256)40_storage",
+            "contract": "Emana",
+            "src": "contracts/Emana.sol:218"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)40_storage": {
+            "label": "uint256[40]",
+            "numberOfBytes": "1280"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(address => mapping(address => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    },
+    "f0c8b278f3e82137d29ca40a78940fbf029000bb29a710c4f0faa4b2ddeec265": {
+      "address": "0x2c04E5F8bc7fB8be1D29D78767FECbB9E573Dd33",
+      "txHash": "0x31349e1c0a17be332f98c2898d785131d5fc86bceeffecc679df46aca5386012",
+      "layout": {
+        "solcVersion": "0.8.19",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "_owner",
+            "offset": 2,
+            "slot": "0",
+            "type": "t_address",
+            "contract": "Ownable",
+            "src": "contracts/Ownable.sol:7"
+          },
+          {
+            "label": "_isGovernor",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "Ownable",
+            "src": "contracts/Ownable.sol:8"
+          },
+          {
+            "label": "_paused",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_bool",
+            "contract": "Pausable",
+            "src": "contracts/Pausable.sol:8"
+          },
+          {
+            "label": "emana",
+            "offset": 1,
+            "slot": "2",
+            "type": "t_contract(IEmana)2165",
+            "contract": "EmanaICO",
+            "src": "contracts/EmanaICO.sol:11"
+          },
+          {
+            "label": "busd",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_contract(IBEP20)2080",
+            "contract": "EmanaICO",
+            "src": "contracts/EmanaICO.sol:12"
+          },
+          {
+            "label": "usdt",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_contract(IBEP20)2080",
+            "contract": "EmanaICO",
+            "src": "contracts/EmanaICO.sol:13"
+          },
+          {
+            "label": "pancakeRouter",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_contract(IPancakeRouter)2182",
+            "contract": "EmanaICO",
+            "src": "contracts/EmanaICO.sol:14"
+          },
+          {
+            "label": "totalRaised",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_uint256",
+            "contract": "EmanaICO",
+            "src": "contracts/EmanaICO.sol:16"
+          },
+          {
+            "label": "liquidity",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_address",
+            "contract": "EmanaICO",
+            "src": "contracts/EmanaICO.sol:18"
+          },
+          {
+            "label": "project",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_address",
+            "contract": "EmanaICO",
+            "src": "contracts/EmanaICO.sol:19"
+          },
+          {
+            "label": "operation_1",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_address",
+            "contract": "EmanaICO",
+            "src": "contracts/EmanaICO.sol:20"
+          },
+          {
+            "label": "operation_2",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_address",
+            "contract": "EmanaICO",
+            "src": "contracts/EmanaICO.sol:21"
+          },
+          {
+            "label": "_referrals",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_mapping(t_address,t_struct(Refer_Info)1133_storage)",
+            "contract": "EmanaICO",
+            "src": "contracts/EmanaICO.sol:26"
+          },
+          {
+            "label": "minPurchaseInUsd",
+            "offset": 0,
+            "slot": "12",
+            "type": "t_uint256",
+            "contract": "EmanaICO",
+            "src": "contracts/EmanaICO.sol:28"
+          },
+          {
+            "label": "emanaPerUsd",
+            "offset": 0,
+            "slot": "13",
+            "type": "t_uint256",
+            "contract": "EmanaICO",
+            "src": "contracts/EmanaICO.sol:29"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "14",
+            "type": "t_array(t_uint256)40_storage",
+            "contract": "EmanaICO",
+            "src": "contracts/EmanaICO.sol:281"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)40_storage": {
+            "label": "uint256[40]",
+            "numberOfBytes": "1280"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(IBEP20)2080": {
+            "label": "contract IBEP20",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IEmana)2165": {
+            "label": "contract IEmana",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IPancakeRouter)2182": {
+            "label": "contract IPancakeRouter",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(Refer_Info)1133_storage)": {
+            "label": "mapping(address => struct EmanaICO.Refer_Info)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Refer_Info)1133_storage": {
+            "label": "struct EmanaICO.Refer_Info",
+            "members": [
+              {
+                "label": "referredBy",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    }
+  }
+}

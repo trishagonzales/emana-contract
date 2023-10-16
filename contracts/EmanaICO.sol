@@ -1,279 +1,267 @@
 // SPDX-License-Identifier: GPL-3.0
+// pragma solidity >=0.7.3 <0.8.21;
 pragma solidity 0.8.19;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "./Pausable.sol";
 import "./Emana.sol";
+import "./Interfaces.sol";
+import "hardhat/console.sol";
 
 contract EmanaICO is Initializable, Pausable {
-    IBEP20 public busd;
-    IEmana public emana;
+    IEmana internal emana;
+    IBEP20 internal busd;
+    IBEP20 internal usdt;
+    IBEP20 internal dai;
+
+    uint public totalRaised;
 
     address public liquidity;
     address public project;
     address public operation_1;
     address public operation_2;
 
-    mapping(address => Refer_Info) private referrals;
     struct Refer_Info {
         address referredBy;
     }
+    mapping(address => Refer_Info) internal _referrals;
 
-    Settings public settings;
+    uint minPurchaseInUsd;
+    uint emanaPerUsd;
 
-    struct Settings {
-        uint256 minimumPurchaseInWei;
-        uint256 emanaAmountPerUsd;
-    }
+    uint8 internal constant liquidity_share = 50;
+    uint8 internal constant project_share = 30;
+    uint8 internal constant operation_share = 5;
+    uint8 internal constant refer1_share = 5;
+    uint8 internal constant refer2_share = 3;
+    uint8 internal constant refer3_share = 2;
+    uint8 internal constant SHARE_DIVIDER = 100;
 
-    Percentage public percent;
-
-    struct Percentage {
-        uint8 liquidity;
-        uint8 project;
-        uint8 operation;
-        uint8 referLevel_1;
-        uint8 referLevel_2;
-        uint8 referLevel_3;
-    }
-
-    uint8 constant PERCENT_DIVIDER = 100;
-
-    error MinimumPurchaseNotReached(address account, uint256 value);
-
-    event Purchase(address indexed account, uint256 amount);
+    error MinimumPurchaseNotMet(address from, uint sent, uint needed);
+    error TransferPaymentFailed(address from, uint sent);
+    event Purchased(address indexed account, uint amount);
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
     }
 
-    // Setup
-
     function initialize(
-        address emana_address,
-        address liquidity_address,
-        address project_address,
-        address operation_1_address,
-        address operation_2_address,
-        uint32 minimumPurchaseInUsd,
-        uint32 _emanaAmountPerUsd,
-        uint8 liquidity_percent,
-        uint8 project_percent,
-        uint8 operation_percent,
-        uint8 referLevel_1_percent,
-        uint8 referLevel_2_percent,
-        uint8 referLevel_3_percent
+        address emana_addr,
+        address busd_addr,
+        address usdt_addr,
+        address dai_addr,
+        address liquidity_addr,
+        address project_addr,
+        address operation1_addr,
+        address operation2_addr,
+        uint _minPurchaseInUsd,
+        uint _emanaPerUsd
     ) public initializer {
-        emana = IEmana(emana_address);
+        __Ownable_init();
+        __Pausable_init();
 
-        liquidity = liquidity_address;
-        project = project_address;
-        operation_1 = operation_1_address;
-        operation_2 = operation_2_address;
+        emana = IEmana(emana_addr);
+        busd = IBEP20(busd_addr);
+        usdt = IBEP20(usdt_addr);
+        dai = IBEP20(dai_addr);
 
-        settings = Settings({
-            minimumPurchaseInWei: minimumPurchaseInUsd * 1 ether,
-            emanaAmountPerUsd: _emanaAmountPerUsd
-        });
+        liquidity = liquidity_addr;
+        project = project_addr;
+        operation_1 = operation1_addr;
+        operation_2 = operation2_addr;
 
-        percent = Percentage({
-            liquidity: liquidity_percent,
-            project: project_percent,
-            operation: operation_percent,
-            referLevel_1: referLevel_1_percent,
-            referLevel_2: referLevel_2_percent,
-            referLevel_3: referLevel_3_percent
-        });
+        minPurchaseInUsd = _minPurchaseInUsd;
+        emanaPerUsd = _emanaPerUsd;
     }
 
-    // function purchaseUsingBnb() external payable {
-    //     address buyer = msg.sender;
-    //     uint256 amount = msg.value;
-    // }
+    function getReferral(address account) public view returns (address) {
+        return _referrals[account].referredBy;
+    }
 
-    function purchaseUsingBusd(uint256 amount, address referrer) external {
-        Settings memory _settings = settings;
+    function purchaseUsingBusd(
+        uint busdAmount,
+        address referrer
+    ) public virtual returns (bool) {
+        uint minPurchase = _minPurchaseInStableCoin();
 
-        if (amount < _settings.minimumPurchaseInWei) {
-            revert MinimumPurchaseNotReached(msg.sender, amount);
-        }
+        if (busdAmount < minPurchase)
+            revert MinimumPurchaseNotMet(msg.sender, busdAmount, minPurchase);
+        _distributeBEP20(busd, busdAmount);
 
-        uint256 totalEmana = (amount / 1e18) * _settings.emanaAmountPerUsd;
-        Percentage memory _percent = percent;
+        uint emanaAmount = _getEquivalentEmana(busd, busdAmount);
 
-        busd.transferFrom(msg.sender, address(this), amount);
-        busd.transfer(liquidity, _computeShare(amount, _percent.liquidity));
-        busd.transfer(project, _computeShare(amount, _percent.project));
-        busd.transfer(operation_1, _computeShare(amount, _percent.operation));
-        busd.transfer(operation_2, _computeShare(amount, _percent.operation));
+        console.log("minPurchase: %s", minPurchase);
+        console.log("busdAmount: %s", busdAmount);
+        console.log("minPurchaseInUsd: %s", minPurchaseInUsd);
+        console.log("emanaPerUsd: %s", emanaPerUsd);
+        console.log("emanaAmount: %s", emanaAmount);
 
-        emana.governanceTransfer(
-            liquidity,
-            _computeShare(totalEmana, _percent.liquidity)
+        _distributeEmana(emanaAmount);
+        _distributeReferReward(busd, busdAmount, emanaAmount, referrer);
+
+        _transferEmanaToBuyer(emanaAmount);
+        return true;
+    }
+
+    function purchaseUsingUsdt(
+        uint usdtAmount,
+        address referrer
+    ) public virtual returns (bool) {
+        uint minPurchase = _minPurchaseInStableCoin();
+
+        if (usdtAmount < minPurchase)
+            revert MinimumPurchaseNotMet(msg.sender, usdtAmount, minPurchase);
+        _distributeBEP20(usdt, usdtAmount);
+
+        uint emanaAmount = _getEquivalentEmana(usdt, usdtAmount);
+        _distributeEmana(emanaAmount);
+        _distributeReferReward(usdt, usdtAmount, emanaAmount, referrer);
+
+        _transferEmanaToBuyer(emanaAmount);
+        return true;
+    }
+
+    function purchaseUsingDai(
+        uint daiAmount,
+        address referrer
+    ) public virtual returns (bool) {
+        uint minPurchase = _minPurchaseInStableCoin();
+
+        if (daiAmount < minPurchase)
+            revert MinimumPurchaseNotMet(msg.sender, daiAmount, minPurchase);
+        _distributeBEP20(dai, daiAmount);
+
+        uint emanaAmount = _getEquivalentEmana(dai, daiAmount);
+        _distributeEmana(emanaAmount);
+        _distributeReferReward(dai, daiAmount, emanaAmount, referrer);
+
+        _transferEmanaToBuyer(emanaAmount);
+        return true;
+    }
+
+    function _minPurchaseInStableCoin() internal view virtual returns (uint) {
+        return minPurchaseInUsd * 1 ether;
+    }
+
+    function _distributeBEP20(IBEP20 token, uint amount) internal virtual {
+        bool success = token.transferFrom(msg.sender, address(this), amount);
+        if (!success) revert TransferPaymentFailed(msg.sender, amount);
+
+        _transferBEP20(token, liquidity, amount, liquidity_share);
+        _transferBEP20(token, project, amount, project_share);
+        _distributeBEP20ToOperation(token, amount);
+    }
+
+    function _distributeBEP20ToOperation(
+        IBEP20 token,
+        uint amount
+    ) internal virtual {
+        _transferBEP20(token, operation_1, amount, operation_share);
+        _transferBEP20(token, operation_2, amount, operation_share);
+    }
+
+    function _distributeEmana(uint amount) internal virtual {
+        _transferEmana(liquidity, amount, liquidity_share);
+        _distributeEmanaToOperation(amount);
+    }
+
+    function _distributeEmanaToOperation(uint amount) internal virtual {
+        _transferEmana(operation_1, amount, operation_share);
+        _transferEmana(operation_2, amount, operation_share);
+    }
+
+    function _transferEmanaToBuyer(uint amount) internal virtual {
+        emana.governanceTransfer(msg.sender, amount);
+        emit Purchased(msg.sender, amount);
+    }
+
+    function _transferBEP20(
+        IBEP20 token,
+        address to,
+        uint amount,
+        uint8 share
+    ) internal virtual {
+        bool success = token.transfer(to, _getShare(amount, share));
+        if (!success) revert TransferPaymentFailed(msg.sender, amount);
+    }
+
+    function _transferEmana(
+        address to,
+        uint amount,
+        uint8 share
+    ) internal virtual {
+        console.log("_transferEmana to: %s", to);
+        console.log("_transferEmana amount: %s", amount);
+        console.log("_transferEmana share: %s", share);
+
+        require(
+            emana.governanceTransfer(to, _getShare(amount, share)),
+            "EmanaICO: Transfer Emana failed"
         );
-        emana.governanceTransfer(
-            operation_1,
-            _computeShare(totalEmana, _percent.operation)
-        );
-        emana.governanceTransfer(
-            operation_2,
-            _computeShare(totalEmana, _percent.operation)
-        );
+    }
 
-        if (referrer == address(0)) {
-            busd.transfer(
-                operation_1,
-                _computeShare(amount, _percent.operation)
-            );
-            busd.transfer(
-                operation_2,
-                _computeShare(amount, _percent.operation)
-            );
-            emana.governanceTransfer(
-                operation_1,
-                _computeShare(totalEmana, _percent.operation)
-            );
-            emana.governanceTransfer(
-                operation_2,
-                _computeShare(totalEmana, _percent.operation)
-            );
+    function _getShare(
+        uint amount,
+        uint8 share
+    ) internal pure virtual returns (uint) {
+        return (amount * share) / SHARE_DIVIDER;
+    }
+
+    function _getEquivalentEmana(
+        IBEP20 token,
+        uint amount
+    ) internal view virtual returns (uint) {
+        return ((amount / (10 ** token.decimals())) * emanaPerUsd);
+    }
+
+    function _distributeReferReward(
+        IBEP20 token,
+        uint paymentAmount,
+        uint emanaAmount,
+        address referrer
+    ) internal virtual {
+        address referredBy = _referrals[msg.sender].referredBy;
+        address level1 = referredBy == address(0) ? referrer : referredBy;
+
+        bool theresNoReferral = level1 == address(0);
+        if (theresNoReferral) {
+            _distributeBEP20ToOperation(token, paymentAmount);
+            _distributeEmanaToOperation(emanaAmount);
         } else {
-            referrals[msg.sender].referredBy = referrer;
+            address level2 = _referrals[level1].referredBy;
+            address level3 = _referrals[level2].referredBy;
 
-            address level1 = referrer;
-            address level2 = referrals[level1].referredBy;
-            address level3 = referrals[level2].referredBy;
-
-            busd.transfer(level1, _computeShare(amount, _percent.referLevel_1));
-            emana.governanceTransfer(
-                level1,
-                _computeShare(totalEmana, _percent.referLevel_1)
-            );
+            _setNewReferral(level1);
+            _transferBEP20(token, level1, paymentAmount, refer1_share);
+            _transferEmana(level1, emanaAmount, refer1_share);
 
             if (level2 != address(0)) {
-                busd.transfer(
-                    level2,
-                    _computeShare(amount, _percent.referLevel_2)
-                );
-                emana.governanceTransfer(
-                    level2,
-                    _computeShare(totalEmana, _percent.referLevel_2)
-                );
+                _transferBEP20(token, level2, paymentAmount, refer2_share);
+                _transferEmana(level2, emanaAmount, refer2_share);
             }
-
             if (level3 != address(0)) {
-                busd.transfer(
-                    level3,
-                    _computeShare(amount, _percent.referLevel_3)
-                );
-                emana.governanceTransfer(
-                    level3,
-                    _computeShare(totalEmana, _percent.referLevel_3)
-                );
+                _transferBEP20(token, level3, paymentAmount, refer3_share);
+                _transferEmana(level3, emanaAmount, refer3_share);
             }
         }
-
-        emana.governanceTransfer(msg.sender, totalEmana);
-        emit Purchase(msg.sender, totalEmana);
     }
 
-    function _computeShare(
-        uint amount,
-        uint8 _percent
-    ) private pure returns (uint) {
-        return (amount * _percent) / PERCENT_DIVIDER;
+    function _setNewReferral(address referrer) internal virtual {
+        _referrals[msg.sender].referredBy = referrer;
     }
 
     function tweakSettings(
-        Settings calldata _settings
-    ) external onlyOwner returns (bool) {
-        settings = _settings;
-        return true;
+        uint _minPurchaseInUsd,
+        uint _emanaPerUsd
+    ) public virtual onlyOwner {
+        minPurchaseInUsd = _minPurchaseInUsd;
+        emanaPerUsd = _emanaPerUsd;
     }
-}
 
-interface IBEP20 {
-    function totalSupply() external view returns (uint256);
+    receive() external payable {}
 
-    function decimals() external view returns (uint8);
+    fallback() external payable {}
 
-    function symbol() external view returns (string memory);
-
-    function name() external view returns (string memory);
-
-    function getOwner() external view returns (address);
-
-    function balanceOf(address account) external view returns (uint256);
-
-    function transfer(
-        address recipient,
-        uint256 amount
-    ) external returns (bool);
-
-    function allowance(
-        address _owner,
-        address spender
-    ) external view returns (uint256);
-
-    function approve(address spender, uint256 amount) external returns (bool);
-
-    function transferFrom(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) external returns (bool);
-
-    event Transfer(address indexed from, address indexed to, uint256 value);
-
-    event Approval(
-        address indexed owner,
-        address indexed spender,
-        uint256 value
-    );
-}
-
-interface IEmana {
-    event Transfer(address indexed from, address indexed to, uint256 value);
-
-    event Approval(
-        address indexed owner,
-        address indexed spender,
-        uint256 value
-    );
-
-    function totalSupply() external view returns (uint256);
-
-    function balanceOf(address account) external view returns (uint256);
-
-    function transfer(address to, uint256 amount) external returns (bool);
-
-    function allowance(
-        address owner,
-        address spender
-    ) external view returns (uint256);
-
-    function approve(address spender, uint256 amount) external returns (bool);
-
-    function transferFrom(
-        address from,
-        address to,
-        uint256 amount
-    ) external returns (bool);
-
-    function pause() external;
-
-    function unpause() external;
-
-    function mint(uint256 amount) external;
-
-    function burn(uint256 amount) external;
-
-    function governanceTransferFrom(
-        address from,
-        address to,
-        uint256 amount
-    ) external;
-
-    function governanceTransfer(address to, uint256 amount) external;
+    uint256[40] private __gap;
 }
